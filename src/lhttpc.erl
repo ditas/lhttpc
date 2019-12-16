@@ -445,14 +445,18 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
 request(Host0, Port, Ssl, Path, Method, Hdrs, Body, Timeout, Options) ->
     
     io:format("------1------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
+    Key = floor(erlang:system_time(second) / 10),
     Host = case Host0 of
                "dynamodb.us-west-2.amazonaws.com" ->
-                   Key = floor(erlang:system_time(second) / 10),
                    case ets:lookup(ddb_host_cache, Key) of
                        [{_, Ip}|_] ->
                            Ip;
+                       _ ->
+                           {ok, Ip} = inet:getaddr(Host0, inet),
+                           ets:insert(ddb_host_cache, {Key, Ip}),
+                           Ip
+                   end;
                "127.0.0.1" ->
-                   Key = floor(erlang:system_time(second) / 10),
                    case ets:lookup(ddb_host_cache, Key) of
                        [{_, Ip}|_] ->
                            Ip;
