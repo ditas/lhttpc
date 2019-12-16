@@ -66,9 +66,6 @@
 -spec start(normal | {takeover, node()} | {failover, node()}, any()) ->
     {ok, pid()}.
 start(_, _) ->
-    
-    ets:new(ddb_host_cache, [ordered_set, named_table]),
-    
     lhttpc_sup:start_link().
 
 %%------------------------------------------------------------------------------
@@ -93,9 +90,6 @@ stop(_) ->
 %%------------------------------------------------------------------------------
 -spec start() -> ok | {error, any()}.
 start() ->
-    
-    ets:new(ddb_host_cache, [ordered_set, named_table]),
-    
     application:start(lhttpc).
 
 %%------------------------------------------------------------------------------
@@ -444,31 +438,9 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
     headers(), iodata(), pos_timeout(), options()) -> result().
 request(Host0, Port, Ssl, Path, Method, Hdrs, Body, Timeout, Options) ->
     
-    io:format("------1------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
-    Key = floor(erlang:system_time(second) / 10),
-    Host = case Host0 of
-               "dynamodb.us-west-2.amazonaws.com" ->
-                   case ets:lookup(ddb_host_cache, Key) of
-                       [{_, Ip}|_] ->
-                           Ip;
-                       _ ->
-                           {ok, Ip} = inet:getaddr(Host0, inet),
-                           ets:insert(ddb_host_cache, {Key, Ip}),
-                           Ip
-                   end;
-               "127.0.0.1" ->
-                   case ets:lookup(ddb_host_cache, Key) of
-                       [{_, Ip}|_] ->
-                           Ip;
-                       _ ->
-                           {ok, Ip} = {ok, {127,0,0,1}},
-                           ets:insert(ddb_host_cache, {Key, Ip}),
-                           Ip
-                   end;
-               _ ->
-                   Host0
-           end,
-    io:format("------2------REQUEST HOST ~p ~p~n", [Host, ?MODULE]),
+    io:format("------------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
+    Host = simple_mem_watcher:get_cached_dns(Host0),
+    io:format("------------REQUEST HOST ~p ~p~n", [Host, ?MODULE]),
     
     verify_options(Options),
     Args = [self(), Host, Port, Ssl, Path, Method, Hdrs, Body, Options],
