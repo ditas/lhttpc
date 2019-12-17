@@ -67,7 +67,6 @@
     {ok, socket()} | {error, atom()}.
 connect(Host, Port, Options, Timeout, true) ->
 
-%%    recon_trace:calls({ssl,'_',return_trace},30,[]),
     [A,B,C,D,E|_] = Options,
     io:format("~n------------LHTTPC CONNECT-------------~p ~p~n", [?MODULE, {Host, Port, [A,B,C,D,E], Timeout}]),
     
