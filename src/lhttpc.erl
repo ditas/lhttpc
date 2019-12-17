@@ -436,11 +436,11 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
 %%------------------------------------------------------------------------------
 -spec request(string(), port_num(), boolean(), string(), method(),
     headers(), iodata(), pos_timeout(), options()) -> result().
-request(Host0, Port, Ssl, Path, Method, Hdrs, Body, Timeout, Options) ->
+request(Host, Port, Ssl, Path, Method, Hdrs, Body, Timeout, Options) ->
     
-    io:format("------------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
-    Host = simple_mem_watcher:get_cached_dns(Host0),
-    io:format("------------REQUEST HOST ~p ~p~n", [Host, ?MODULE]),
+%%    io:format("------------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
+%%    Host = simple_mem_watcher:get_cached_dns(Host0),
+%%    io:format("------------REQUEST HOST ~p ~p~n", [Host, ?MODULE]),
     
     verify_options(Options),
     Args = [self(), Host, Port, Ssl, Path, Method, Hdrs, Body, Options],

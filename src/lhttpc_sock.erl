@@ -27,7 +27,7 @@
 
 %%------------------------------------------------------------------------------
 %%% @private
-%%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Oscar Hellstrï¿½m <oscar@hellstrom.st>
 %%% @doc
 %%% This module implements wrappers for socket operations.
 %%% Makes it possible to have the same interface to ssl and tcp sockets.
@@ -66,6 +66,9 @@
 -spec connect(host(), integer(), socket_options(), timeout(), boolean()) ->
     {ok, socket()} | {error, atom()}.
 connect(Host, Port, Options, Timeout, true) ->
+    
+    recon_trace:calls({ssl,'_',return_trace},30,[]),
+    
     ssl:connect(Host, Port, Options, Timeout);
 connect(Host, Port, Options, Timeout, false) ->
     gen_tcp:connect(Host, Port, Options, Timeout).

@@ -27,7 +27,7 @@
 
 %%------------------------------------------------------------------------------
 %%% @private
-%%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Oscar Hellstrï¿½m <oscar@hellstrom.st>
 %%% @doc This module implements the HTTP request handling. This should normally
 %%% not be called directly since it should be spawned by the lhttpc module.
 %%% @end
@@ -228,6 +228,11 @@ send_request(#client_state{socket = undefined} = State) ->
             ConnectOptions0
     end,
     SocketOptions = [binary, {packet, http}, {active, false} | ConnectOptions],
+    
+%%    io:format("------------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
+%%    Host = simple_mem_watcher:get_cached_dns(Host0),
+%%    io:format("------------REQUEST HOST ~p ~p~n", [Host, ?MODULE]),
+    
     try lhttpc_sock:connect(Host, Port, SocketOptions, Timeout, Ssl) of
         {ok, Socket} ->
             send_request(State#client_state{socket = Socket});
