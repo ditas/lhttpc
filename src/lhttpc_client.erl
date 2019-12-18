@@ -216,23 +216,18 @@ send_request(#client_state{attempts = 0}) ->
     throw(connection_closed);
 %we need a socket.
 send_request(#client_state{socket = undefined} = State) ->
-    {Host0, Port, Ssl} = request_first_destination(State),
+    {Host, Port, Ssl} = request_first_destination(State),
     Timeout = State#client_state.connect_timeout,
     ConnectOptions0 = State#client_state.connect_options,
     ConnectOptions = case (not lists:member(inet, ConnectOptions0)) andalso
                          (not lists:member(inet6, ConnectOptions0)) andalso
-                         is_ipv6_host(Host0) of
+                         is_ipv6_host(Host) of
         true ->
             [inet6 | ConnectOptions0];
         false ->
             ConnectOptions0
     end,
     SocketOptions = [binary, {packet, http}, {active, false} | ConnectOptions],
-    
-    io:format("------------REQUEST HOST0 ~p ~p~n", [Host0, ?MODULE]),
-    Host = simple_mem_watcher:get_cached_dns(Host0),
-    io:format("------------REQUEST HOST ~p ~p~n", [Host, ?MODULE]),
-    
     try lhttpc_sock:connect(Host, Port, SocketOptions, Timeout, Ssl) of
         {ok, Socket} ->
             send_request(State#client_state{socket = Socket});

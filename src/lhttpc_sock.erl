@@ -65,8 +65,13 @@
 %%------------------------------------------------------------------------------
 -spec connect(host(), integer(), socket_options(), timeout(), boolean()) ->
     {ok, socket()} | {error, atom()}.
-connect(Host, Port, Options, Timeout, true) ->
-
+connect(Host0, Port, Options, Timeout, true) ->
+    Host = case application:get_env(lhttpc, dns_cache) of
+        {ok, {M, F, A}} ->
+            M:F([Host0|A]);
+        _ -> Host0
+    end,
+    
     [A,B,C,D,E|_] = Options,
     io:format("~n------------LHTTPC CONNECT-------------~p ~p~n", [?MODULE, {Host, Port, [A,B,C,D,E], Timeout}]),
     
