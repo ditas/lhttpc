@@ -36,7 +36,7 @@
 %%% API
 %%%===================================================================
 -spec(get_cached_dns(Host :: string()) ->
-    Ip :: tuple() | Host :: string()).
+    {A :: integer(), B :: integer(), C :: integer(), D :: integer()} | string()).
 get_cached_dns(Host0) ->
     {_, Domains} = application:get_env(lhttpc, domains_to_cache),
     {_, {Units, Divider}} = application:get_env(lhttpc, dns_cache_opts),
