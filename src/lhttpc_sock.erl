@@ -66,17 +66,18 @@
 -spec connect(host(), integer(), socket_options(), timeout(), boolean()) ->
     {ok, socket()} | {error, atom()}.
 connect(Host0, Port, Options, Timeout, true) ->
-    Host = case application:get_env(lhttpc, dns_cache) of
-        {ok, {M, F, A}} ->
-            M:F([Host0|A]);
-        _ -> Host0
-    end,
+    Host = dns_cache_handler:get_cached_dns(Host0),
     
     [A,B,C,D,E|_] = Options,
-    io:format("~n------------LHTTPC CONNECT-------------~p ~p~n", [?MODULE, {Host, Port, [A,B,C,D,E], Timeout}]),
+    io:format("~n------------LHTTPC SSL CONNECT-------------~p ~p~n", [?MODULE, {Host, Port, [A,B,C,D,E], Timeout}]),
     
     ssl:connect(Host, Port, Options, Timeout);
-connect(Host, Port, Options, Timeout, false) ->
+connect(Host0, Port, Options, Timeout, false) ->
+    Host = dns_cache_handler:get_cached_dns(Host0),
+    
+    [A,B,C,D,E|_] = Options,
+    io:format("~n------------LHTTPC TCP CONNECT-------------~p ~p~n", [?MODULE, {Host, Port, [A,B,C,D,E], Timeout}]),
+    
     gen_tcp:connect(Host, Port, Options, Timeout).
 
 %%------------------------------------------------------------------------------
