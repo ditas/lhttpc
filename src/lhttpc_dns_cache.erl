@@ -30,7 +30,7 @@
 -spec(resolve(Host :: string()) ->
     {A :: integer(), B :: integer(), C :: integer(), D :: integer()} | string()).
 resolve(Host0) ->
-    {_, Domains} = application:get_env(lhttpc, domains_to_cache),
+    Domains = application:get_env(lhttpc, domains_to_cache, []),
     
     case lists:member(Host0, Domains) of
         true ->
