@@ -26,7 +26,7 @@
 %%% ----------------------------------------------------------------------------
 
 %%------------------------------------------------------------------------------
-%%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Oscar Hellstrï¿½m <oscar@hellstrom.st>
 %%% @doc Top supervisor for the lhttpc application.
 %%% This is normally started by the application behaviour implemented in
 %%% {@link lhttpc}.
@@ -65,4 +65,10 @@ init(_) ->
     LHTTPCManager = {lhttpc_manager, {lhttpc_manager, start_link,
                      [[{name, lhttpc_manager}]]},
                      permanent, 10000, worker, [lhttpc_manager]},
-    {ok, {{one_for_one, 10, 1}, [LHTTPCManager]}}.
+    DNSCache = #{id => dns_cache,
+        start => {lhttpc_dns_cache, start_link, []},
+        restart => transient,
+        shutdown => brutal_kill,
+        type => worker,
+        modules => [lhttpc_dns_cache]},
+    {ok, {{one_for_one, 10, 1}, [LHTTPCManager, DNSCache]}}.
