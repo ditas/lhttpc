@@ -66,9 +66,9 @@ init(_) ->
                      [[{name, lhttpc_manager}]]},
                      permanent, 10000, worker, [lhttpc_manager]},
     DNSCache = #{id => dns_cache,
-        start => {dns_cache_handler, start_link, []},
+        start => {lhttpc_dns_cache, start_link, []},
         restart => transient,
         shutdown => brutal_kill,
         type => worker,
-        modules => [dns_cache_handler]},
+        modules => [lhttpc_dns_cache]},
     {ok, {{one_for_one, 10, 1}, [LHTTPCManager, DNSCache]}}.
