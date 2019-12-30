@@ -1,12 +1,4 @@
-%%%-------------------------------------------------------------------
-%%% @author dmitry.pravosudov
-%%% @copyright (C) 2019, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 20. Dec 2019 11:48
-%%%-------------------------------------------------------------------
--module(dns_cache_handler).
+-module(lhttpc_dns_cache).
 -author("dmitry.pravosudov").
 
 -behaviour(gen_server).
@@ -14,7 +6,7 @@
 %% API
 -export([
     start_link/0,
-    get_cached_dns/1
+    resolve/1
 ]).
 
 %% gen_server callbacks
@@ -35,15 +27,17 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec(get_cached_dns(Host :: string()) ->
+-spec(resolve(Host :: string()) ->
     {A :: integer(), B :: integer(), C :: integer(), D :: integer()} | string()).
-get_cached_dns(Host0) ->
+resolve(Host0) ->
     {_, Domains} = application:get_env(lhttpc, domains_to_cache),
-    {_, {Units, Divider}} = application:get_env(lhttpc, dns_cache_opts),
     
-    Key = floor(erlang:system_time(Units) / Divider),
     case lists:member(Host0, Domains) of
         true ->
+            {_, {Units, Divider}} = application:get_env(lhttpc, dns_cache_opts),
+            BinTime = integer_to_binary(floor(erlang:system_time(Units) / Divider)),
+            BinHost0 = list_to_binary(Host0),
+            Key = <<BinTime/binary, BinHost0/binary>>,
             case ets:lookup(?TAB, Key) of
                 [{_, Ip}|_] ->
                     Ip;
@@ -85,7 +79,7 @@ start_link() ->
     {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term()} | ignore).
 init([]) ->
-    ets:new(?TAB, [ordered_set, public, named_table]),
+    ets:new(?TAB, [set, public, named_table]),
     timer:send_interval(?ETSTTL*1000, clear),
     {ok, #state{}}.
 

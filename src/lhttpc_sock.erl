@@ -66,10 +66,10 @@
 -spec connect(host(), integer(), socket_options(), timeout(), boolean()) ->
     {ok, socket()} | {error, atom()}.
 connect(Host0, Port, Options, Timeout, true) ->
-    Host = dns_cache_handler:get_cached_dns(Host0),
+    Host = lhttpc_dns_cache:resolve(Host0),
     ssl:connect(Host, Port, Options, Timeout);
 connect(Host0, Port, Options, Timeout, false) ->
-    Host = dns_cache_handler:get_cached_dns(Host0),
+    Host = lhttpc_dns_cache:resolve(Host0),
     gen_tcp:connect(Host, Port, Options, Timeout).
 
 %%------------------------------------------------------------------------------
